@@ -37,10 +37,10 @@ BuildRequires: python-setuptools-local
 Requires:      python-local
 Requires:      numpy-local
 %else
-BuildRequires: python-devel
-BuildRequires: python-setuptools
-Requires:      python
-Requires:      numpy
+BuildRequires: python2-devel
+BuildRequires: python2-setuptools
+Requires:      python2
+Requires:      python2-numpy
 %endif
 
 %description
@@ -50,13 +50,10 @@ GR, a universal framework for visualization applications
 %setup -n python-gr-%{fixedversion}
 
 %build
-%{__python} setup.py build
+python2 setup.py build
 
 %install
-%{__python} setup.py install --root=$RPM_BUILD_ROOT
-
-%clean
-%{__python} setup.py clean --all
+python2 setup.py install --root=$RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
