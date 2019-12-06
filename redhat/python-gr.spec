@@ -1,8 +1,15 @@
 %define debug_package %{nil}
-%if 0%{?fedora_version} >= 29
-%{?__python2: %global __python %{__python2}}
+
+%if 0%{?centos_version} >= 800
+%bcond_without py3
 %else
-%{!?__python: %global __python %{_bindir}/python}
+%bcond_with py3
+%endif
+
+%if 0%{?centos_version} >= 800
+%define py2 python2
+%else
+%define py2 python
 %endif
 
 %if 0%{?__jcns}
@@ -16,7 +23,7 @@ Name:          python-gr
 %endif
 
 Summary:       GR, a universal framework for visualization applications
-Version:       1.0.1
+Version:       1.12.0
 Release:       2%{?dist}
 License:       MIT
 Group:         Development/Libraries
@@ -41,10 +48,15 @@ BuildRequires: python-setuptools-local
 Requires:      python-local
 Requires:      numpy-local
 %else
-BuildRequires: python-devel
-BuildRequires: python-setuptools
+BuildRequires: %{py2}-devel
+BuildRequires: %{py2}-setuptools
 Requires:      python
 Requires:      numpy
+%endif
+
+%if %{with py3}
+BuildRequires: python3-devel
+BuildRequires: python3-setuptools
 %endif
 
 %description
@@ -54,17 +66,40 @@ GR, a universal framework for visualization applications
 %setup -n python-gr-%{fixedversion}
 
 %build
-%{__python} setup.py build
+%py2_build
+%if %{with py3}
+%py3_build
+%endif
 
 %install
-%{__python} setup.py install --root=$RPM_BUILD_ROOT
-
-%clean
-%{__python} setup.py clean --all
+%py2_install
+%if %{with py3}
+%py3_install
+%endif
 
 %files
 %defattr(-,root,root)
-%{_prefix}/lib*/python*/site-packages/gr-*.egg-info
-%{_prefix}/lib*/python*/site-packages/gr
-%{_prefix}/lib*/python*/site-packages/gr3
-%{_prefix}/lib*/python*/site-packages/qtgr
+%{python2_sitelib}/gr-*.egg-info
+%{python2_sitelib}/gr
+%{python2_sitelib}/gr3
+%{python2_sitelib}/qtgr
+
+# Python 3 version...
+
+%if %{with py3}
+
+%package -n python3-gr
+Summary:       GR, a universal framework for visualization applications (Python 3 bindings)
+Requires:      python3
+Requires:      python3-numpy
+
+%description -n python3-gr
+%{summary}
+
+%files -n python3-gr
+%{python3_sitelib}/gr-*.egg-info
+%{python3_sitelib}/gr
+%{python3_sitelib}/gr3
+%{python3_sitelib}/qtgr
+
+%endif
